@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Mini Task Manager</title>
+<style>
+body { font-family: Arial; margin: 40px; }
+.completed { text-decoration: line-through; color: gray; }
+button { margin-left: 5px; }
+</style>
+</head>
+<body>
+<h1>Mini Task Manager</h1>
+<input id="new-task" placeholder="New task">
+<button onclick="addTask()">Add</button>
+<ul id="task-list"></ul>
+
+<script>
+async function fetchTasks() {
+    const res = await fetch('/tasks');
+    const tasks = await res.json();
+    const list = document.getElementById('task-list');
+    list.innerHTML = '';
+    tasks.forEach(task => {
+        const li = document.createElement('li');
+        li.textContent = task.title;
+        if(task.completed) li.classList.add('completed');
+        li.onclick = async () => { await toggleTask(task.id); fetchTasks(); };
+        const del = document.createElement('button');
+        del.textContent = 'Delete';
+        del.onclick = async (e) => { e.stopPropagation(); await deleteTask(task.id); fetchTasks(); };
+        li.appendChild(del);
+        list.appendChild(li);
+    });
+}
+
+async function addTask() {
+    const input = document.getElementById('new-task');
+    if(!input.value.trim()) return;
+    await fetch('/tasks', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title: input.value}) });
+    input.value = '';
+    fetchTasks();
+}
+
+async function toggleTask(id) {
+    await fetch(`/tasks/${id}`, { method: 'PUT' });
+}
+
+async function deleteTask(id) {
+    await fetch(`/tasks/${id}`, { method: 'DELETE' });
+}
+
+fetchTasks();
+</script>
+</body>
+</html>
