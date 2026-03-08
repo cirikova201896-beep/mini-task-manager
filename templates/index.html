@@ -11,6 +11,10 @@
 <body>
     <div class="container">
         <h1>🌸 Мини-диспетчер задач</h1>
+        <div class="task-counter">
+    <span>Всего задач: <b id="total-tasks">0</b></span>
+    <span>Выполнено: <b id="completed-tasks">0</b></span>
+</div>
         
         <!-- Форма добавления задачи -->
         <div class="input-group">
@@ -42,6 +46,9 @@
         const res = await fetch('/tasks');
         tasks = await res.json();
         renderTasks();
+        // Обновляем счётчик
+document.getElementById('total-tasks').textContent = tasks.length;
+document.getElementById('completed-tasks').textContent = tasks.filter(t => t.completed).length;
     }
 
     // задачи на странице
