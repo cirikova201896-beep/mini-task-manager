@@ -1,45 +1,241 @@
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap');
+
+/* ===== ОСНОВНЫЕ СТИЛИ ===== */
 body {
-    margin: 0;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
-        "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
-        sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-}
-
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
-}
-
-.App {
-    text-align: center;
-}
-
-.App-logo {
-    height: 40vmin;
-    pointer-events: none;
-}
-
-.App-header {
-    background-color: #282c34;
+    font-family: 'Open Sans', sans-serif;
+    /* Коралловый градиентный фон */
+    background: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 50%, #ff99ac 100%);
     min-height: 100vh;
+    margin: 0;
+    padding: 40px 20px;
+}
+
+/* Белая карточка по центру */
+.container {
+    max-width: 700px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    padding: 40px;
+    box-shadow: 0 15px 50px rgba(255, 106, 136, 0.4);
+}
+
+/* Заголовок */
+h1 {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 32px;
+    color: #ff6a88;
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* ===== ФОРМА ДОБАВЛЕНИЯ ===== */
+.input-group {
     display: flex;
-    flex-direction: column;
-    align-items: center;
+    gap: 10px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+#new-task {
+    flex: 1;
+    min-width: 200px;
+    padding: 14px 18px;
+    border: 2px solid #ffb6b9;
+    border-radius: 10px;
+    font-size: 16px;
+    font-family: 'Open Sans', sans-serif;
+    transition: 0.3s;
+}
+
+#new-task:focus {
+    outline: none;
+    border-color: #ff6a88;
+    box-shadow: 0 0 0 3px rgba(255, 106, 136, 0.2);
+}
+
+#new-task::placeholder {
+    color: #ffb6b9;
+}
+
+#priority, #deadline {
+    padding: 14px 18px;
+    border: 2px solid #ffb6b9;
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: 'Open Sans', sans-serif;
+    background: white;
+    cursor: pointer;
+}
+
+#priority:focus, #deadline:focus {
+    outline: none;
+    border-color: #ff6a88;
+}
+
+/* Кнопка "Добавить" */
+.input-group {
     justify-content: center;
-    font-size: calc(10px + 2vmin);
+}
+.input-group button {
+    padding: 14px 28px;
+    background: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 100%);
     color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 16px;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    transition: 0.3s;
 }
 
-.App-link {
-    color: #61dafb;
+.input-group button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 106, 136, 0.4);
 }
 
-.heart {
-    color: #ff0000;
+/* ===== КНОПКИ СОРТИРОВКИ ===== */
+.filters {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
 }
 
-.small {
-    font-size: 0.75rem;
+.filter-btn {
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 100%);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.filter-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 106, 136, 0.4);
+}
+
+/* ===== СПИСОК ЗАДАЧ ===== */
+#task-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+#task-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 18px 20px;
+    margin: 12px 0;
+    background: linear-gradient(135deg, #fff5f6 0%, #ffe5e8 100%);
+    border-radius: 12px;
+    cursor: pointer;
+    transition: 0.3s;
+    border-left: 5px solid #ff6a88;
+}
+
+#task-list li:hover {
+    transform: translateX(8px);
+    box-shadow: 0 5px 15px rgba(255, 106, 136, 0.25);
+}
+
+/* Информация о задаче */
+.task-info {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    flex: 1;
+}
+
+.task-title {
+    font-weight: 600;
+    font-size: 16px;
+    color: #333;
+}
+
+/* Бейджи приоритетов */
+.priority-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Высокий приоритет - красный */
+.priority-high {
+    background: #ffe0e0;
+    color: #ff4444;
+    border-left-color: #ff4444 !important;
+}
+
+/* Средний приоритет - оранжевый */
+.priority-medium {
+    background: #fff4e0;
+    color: #ff8800;
+    border-left-color: #ff8800 !important;
+}
+
+/* Низкий приоритет - зелёный */
+.priority-low {
+    background: #e0ffe0;
+    color: #44aa44;
+    border-left-color: #44aa44 !important;
+}
+
+/* Срок задачи */
+.deadline {
+    font-size: 13px;
+    color: #888;
+}
+
+/* Просроченная задача */
+.overdue {
+    background: linear-gradient(135deg, #ffe5e5 0%, #ffcccc 100%) !important;
+    border-left-color: #ff4444 !important;
+}
+
+.overdue .deadline {
+    color: #ff4444;
+    font-weight: 600;
+}
+
+/* Выполненная задача */
+.completed {
+    text-decoration: line-through;
+    color: #bbb;
+    background: linear-gradient(135deg, #f5f5f5 0%, #e8e8e8 100%) !important;
+    border-left-color: #ccc !important;
+}
+
+.completed .priority-badge {
+    opacity: 0.5;
+}
+
+/* Кнопка "Удалить" */
+.delete-btn {
+    padding: 10px 20px;
+    background: linear-gradient(135deg, #ff9a8b 0%, #ff6a88 100%);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 14px;
+    transition: 0.3s;
+}
+
+.delete-btn:hover {
+    transform: scale(1.08);
+    box-shadow: 0 5px 15px rgba(255, 106, 136, 0.4);
 }

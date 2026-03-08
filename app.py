@@ -24,7 +24,6 @@ def save_tasks():
 
 load_tasks()
 
-# ----------------- REST API -----------------
 @app.route("/tasks", methods=["GET"])
 def get_tasks():
     return jsonify(tasks)
@@ -35,7 +34,13 @@ def add_task():
     data = request.get_json()
     if not data or "title" not in data or not data["title"].strip():
         return jsonify({"error": "Title is required"}), 400
-    task = {"id": next_id, "title": data["title"].strip(), "completed": False}
+    task = {
+        "id": next_id,
+        "title": data["title"].strip(),
+        "completed": False,
+        "priority": data.get("priority", "medium"),
+        "deadline": data.get("deadline", None)
+    }
     tasks.append(task)
     next_id += 1
     save_tasks()
@@ -60,12 +65,10 @@ def delete_task(task_id):
     save_tasks()
     return jsonify({"message": "Deleted"})
 
-# ----------------- Frontend -----------------
 @app.route("/")
 def home():
     return render_template("index.html")
 
-# ----------------- Run -----------------
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)

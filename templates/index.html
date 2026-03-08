@@ -1,56 +1,150 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<title>Mini Task Manager</title>
-<style>
-body { font-family: Arial; margin: 40px; }
-.completed { text-decoration: line-through; color: gray; }
-button { margin-left: 5px; }
-</style>
+    <meta charset="UTF-8">
+    <title>Мини-диспетчер задач</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&family=Open+Sans:wght@400;600&display=swap" rel="stylesheet">
+    
+    <link rel="stylesheet" href="/static/main.css">
 </head>
 <body>
-<h1>Mini Task Manager</h1>
-<input id="new-task" placeholder="New task">
-<button onclick="addTask()">Add</button>
-<ul id="task-list"></ul>
+    <div class="container">
+        <h1>🌸 Мини-диспетчер задач</h1>
+        
+        <!-- Форма добавления задачи -->
+        <div class="input-group">
+            <input id="new-task" placeholder="Новая задача">
+            <select id="priority">
+                <option value="low">🟢 Низкий</option>
+                <option value="medium" selected>🟡 Средний</option>
+                <option value="high">🔴 Высокий</option>
+            </select>
+            <input type="date" id="deadline">
+            <button onclick="addTask()">Добавить</button>
+        </div>
+        
+        <!-- Кнопки сортировки -->
+        <div class="filters">
+            <button onclick="sortTasks('priority')" class="filter-btn">Сортировать по приоритету</button>
+            <button onclick="sortTasks('deadline')" class="filter-btn">Сортировать по сроку</button>
+        </div>
+        
+        <!-- Список задач -->
+        <ul id="task-list"></ul>
+    </div>
 
-<script>
-async function fetchTasks() {
-    const res = await fetch('/tasks');
-    const tasks = await res.json();
-    const list = document.getElementById('task-list');
-    list.innerHTML = '';
-    tasks.forEach(task => {
-        const li = document.createElement('li');
-        li.textContent = task.title;
-        if(task.completed) li.classList.add('completed');
-        li.onclick = async () => { await toggleTask(task.id); fetchTasks(); };
-        const del = document.createElement('button');
-        del.textContent = 'Delete';
-        del.onclick = async (e) => { e.stopPropagation(); await deleteTask(task.id); fetchTasks(); };
-        li.appendChild(del);
-        list.appendChild(li);
-    });
-}
+    <script>
+    let tasks = [];
 
-async function addTask() {
-    const input = document.getElementById('new-task');
-    if(!input.value.trim()) return;
-    await fetch('/tasks', { method: 'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({title: input.value}) });
-    input.value = '';
+    // задачи с сервера
+    async function fetchTasks() {
+        const res = await fetch('/tasks');
+        tasks = await res.json();
+        renderTasks();
+    }
+
+    // задачи на странице
+    function renderTasks() {
+        const list = document.getElementById('task-list');
+        list.innerHTML = '';
+        
+        tasks.forEach(task => {
+            const li = document.createElement('li');
+            li.className = `priority-${task.priority || 'medium'}`;
+            
+            // Если задача выполнена - добавляем класс
+            if(task.completed) li.classList.add('completed');
+            
+            // Проверяем, просрочена ли задача
+            const isOverdue = task.deadline && new Date(task.deadline) < new Date() && !task.completed;
+            if(isOverdue) li.classList.add('overdue');
+            
+            li.innerHTML = `
+                <div class="task-info">
+                    <span class="task-title">${task.title}</span>
+                    <span class="priority-badge priority-${task.priority || 'medium'}">
+                        ${getPriorityText(task.priority)}
+                    </span>
+                    ${task.deadline ? `<span class="deadline">📅 ${formatDate(task.deadline)}</span>` : ''}
+                </div>
+                <button class="delete-btn" onclick="deleteTask(${task.id})">Удалить</button>
+            `;
+            
+            // Клик по задаче = отметить выполненной
+            li.onclick = (e) => {
+                if(!e.target.classList.contains('delete-btn')) {
+                    toggleTask(task.id);
+                }
+            };
+            
+            list.appendChild(li);
+        });
+    }
+
+    // Текст приоритета
+    function getPriorityText(priority) {
+        if(priority === 'high') return '🔴 Высокий';
+        if(priority === 'low') return '🟢 Низкий';
+        return '🟡 Средний';
+    }
+
+    // Формат даты
+    function formatDate(dateStr) {
+        const date = new Date(dateStr);
+        return date.toLocaleDateString('ru-RU', { day: 'numeric', month: 'long' });
+    }
+
+    // Добавить задачу
+    async function addTask() {
+        const input = document.getElementById('new-task');
+        const priority = document.getElementById('priority').value;
+        const deadline = document.getElementById('deadline').value;
+        
+        if(!input.value.trim()) return;
+        
+        await fetch('/tasks', { 
+            method: 'POST', 
+            headers:{'Content-Type':'application/json'}, 
+            body: JSON.stringify({
+                title: input.value,
+                priority: priority,
+                deadline: deadline || null
+            })
+        });
+        input.value = '';
+        fetchTasks();
+    }
+
+    // Отметить выполненной
+    async function toggleTask(id) {
+        await fetch(`/tasks/${id}`, { method: 'PUT' });
+        fetchTasks();
+    }
+
+    // Удалить задачу
+    async function deleteTask(id) {
+        await fetch(`/tasks/${id}`, { method: 'DELETE' });
+        fetchTasks();
+    }
+
+    // Сортировка
+    function sortTasks(by) {
+        if(by === 'priority') {
+            const order = { 'high': 0, 'medium': 1, 'low': 2 };
+            tasks.sort((a, b) => order[a.priority || 'medium'] - order[b.priority || 'medium']);
+        } else if(by === 'deadline') {
+            tasks.sort((a, b) => {
+                if(!a.deadline) return 1;
+                if(!b.deadline) return -1;
+                return new Date(a.deadline) - new Date(b.deadline);
+            });
+        }
+        renderTasks();
+    }
+
+    // Загружаем задачи при открытии страницы
     fetchTasks();
-}
-
-async function toggleTask(id) {
-    await fetch(`/tasks/${id}`, { method: 'PUT' });
-}
-
-async function deleteTask(id) {
-    await fetch(`/tasks/${id}`, { method: 'DELETE' });
-}
-
-fetchTasks();
-</script>
+    </script>
 </body>
 </html>
